@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "toggl_tracker_assistant"
+version = "0.1.0"
+description = "A simple Toggl Tracker Assistant with minimal GUI"
+authors = ["Your Name <your.email@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+tkinter = "*"
+
+[tool.poetry.dev-dependencies]
+commitizen = "^2.19.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
