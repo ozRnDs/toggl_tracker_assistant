@@ -13,6 +13,8 @@ class TogglStartUI:
         self.root = tk.Tk()
         self.root.title("Toggl Tracker Assistant")
         self.root.resizable(False, False)  # Disables window resizing (removes maximize button)
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)  # Handle the window close button ("x")
+        self.cancelled = False
 
         # Project selection label
         self.project_label = tk.Label(self.root, text="Select Project:", font=("Helvetica", 14))
@@ -52,6 +54,9 @@ class TogglStartUI:
         self.project = None
         self.description = None
 
+    def on_close(self):
+        self.cancelled = True
+        self.root.quit()
     def start(self):
         self.project = self.selected_project.get()
         self.description = self.description_entry.get()
@@ -68,6 +73,8 @@ class TogglStartUI:
     def run(self):
         """Starts the Tkinter event loop."""
         self.root.mainloop()
+        if self.cancelled:
+            return None
         return UserInput(project=self.project, description=self.description)
 
 # # List of projects to populate the dropdown
