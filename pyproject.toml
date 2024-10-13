@@ -2,14 +2,21 @@
 name = "toggl_tracker_assistant"
 version = "0.1.0"
 description = "A simple Toggl Tracker Assistant with minimal GUI"
-authors = ["Your Name <your.email@example.com>"]
+authors = ["Oz Shaked <oz.rnds@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
-tkinter = "*"
+python = ">=3.10,<3.14"
+pydantic = "^2.9.2"
+requests = "^2.32.3"
+pydantic-settings = "^2.5.2"
+loguru = "^0.7.2"
 
 [tool.poetry.dev-dependencies]
 commitizen = "^2.19.0"
+
+[tool.poetry.group.dev.dependencies]
+pyinstaller = "^6.10.0"
+pytest = "^8.3.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
