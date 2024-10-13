@@ -5,10 +5,13 @@ from config import AppConfig
 
 class TogglConfigUI:
     """Class to manage the UI of the application."""
-    def __init__(self, project_names: List[str], current_config: AppConfig):
+    def __init__(self, project_names: List[str], current_config: AppConfig=None):
+        self._current_config = current_config
         self.root = tk.Tk()
         self.root.title("Toggl Tracker Configuration")
         self.root.resizable(False, False)  # Disables window resizing (removes maximize button)
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)  # Handle the window close button ("x")
+        self.cancelled = False
 
         # Project selection label
         self.project_label = tk.Label(self.root, text="Select Projects:", font=("Helvetica", 14))
@@ -19,11 +22,12 @@ class TogglConfigUI:
         self.project_listbox = tk.Listbox(self.root, selectmode='multiple', font=("Helvetica", 14), height=6)
         for project in project_names:
             self.project_listbox.insert(tk.END, project)
-        for project in current_config.PROJECTS_LIST:
-            idx = project_names.index(project) if project.lower() in project_names else None
-            if idx is not None:
-                self.project_listbox.select_set(idx)
-        self.project_listbox.pack(pady=(0, 20))
+        if current_config:
+            for project in current_config.PROJECTS_LIST:
+                idx = project_names.index(project) if project.lower() in project_names else None
+                if idx is not None:
+                    self.project_listbox.select_set(idx)
+            self.project_listbox.pack(pady=(0, 20))
 
         # Workspace ID label
         self.workspace_label = tk.Label(self.root, text="Enter Workspace ID:", font=("Helvetica", 14))
@@ -31,7 +35,8 @@ class TogglConfigUI:
 
         # Workspace ID entry
         self.workspace_entry = ttk.Entry(self.root, width=30, font=("Helvetica", 14))
-        self.workspace_entry.insert(0, current_config.TOGGL_WORKSPACE)
+        workspace_value = current_config.TOGGL_WORKSPACE if current_config else ""
+        self.workspace_entry.insert(0, workspace_value)
         self.workspace_entry.pack(pady=(0, 20))
 
         # API Key label
@@ -40,7 +45,8 @@ class TogglConfigUI:
 
         # API Key entry
         self.api_key_entry = ttk.Entry(self.root, width=30, font=("Helvetica", 14), show="*")
-        self.api_key_entry.insert(0, current_config.TOGGL_API_KEY)
+        api_key_value = current_config.TOGGL_API_KEY if current_config else ""
+        self.api_key_entry.insert(0, api_key_value)
         self.api_key_entry.pack(pady=(0, 20))
 
         # Save button
@@ -66,13 +72,17 @@ class TogglConfigUI:
         self.workspace_id = None
         self.api_key = None
 
+    def on_close(self):
+        self.cancelled = True
+        self.root.quit()
+
     def save(self):
         selected_indices = self.project_listbox.curselection()
         self.projects = [self.project_listbox.get(i) for i in selected_indices]
         self.workspace_id = self.workspace_entry.get()
         self.api_key = self.api_key_entry.get()
         
-        if not self.projects:
+        if not self.projects and self._current_config:
             self.output_label.config(text="Please select at least one project.")
         elif not self.workspace_id:
             self.output_label.config(text="Please enter a workspace ID.")
@@ -85,4 +95,6 @@ class TogglConfigUI:
     def run(self):
         """Starts the Tkinter event loop."""
         self.root.mainloop()
+        if self.cancelled:
+            return None
         return AppConfig(TOGGL_WORKSPACE=self.workspace_id, TOGGL_API_KEY=self.api_key, PROJECTS_LIST=self.projects)
