@@ -5,16 +5,59 @@ from pydantic import BaseModel
 from typing import Optional, List
 
 
-class CurrentTrackData(BaseModel):
-    """Pydantic model representing the data of the current time entry."""
+class TimeEntryData(BaseModel):
+    # Model representing the data of the current time entry
     id: int
     wid: int
-    pid: Optional[int] = None # pid can be optional
+    pid: Optional[int] = None
     billable: bool
     start: datetime
     duration: int
-    description: str
-    at: datetime
+    description: Optional[str] = None
+    at: str
+    client_name: Optional[str] = None
+    duronly: Optional[bool] = None
+    permissions: Optional[List[str]] = None
+    project_active: Optional[bool] = None
+    project_billable: Optional[bool] = None
+    project_color: Optional[str] = None
+    project_id: Optional[int] = None
+    project_name: Optional[str] = None
+    shared_with: Optional[List[dict]] = None
+    stop: Optional[str] = None
+    tag_ids: Optional[List[int]] = None
+    tags: Optional[List[str]] = None
+    task_id: Optional[int] = None
+    task_name: Optional[str] = None
+    tid: Optional[int] = None
+    uid: Optional[int] = None
+    user_avatar_url: Optional[str] = None
+    user_id: int
+    user_name: Optional[str] = None
+    workspace_id: int
+
+class TimeEntryCreateData(BaseModel):
+    # Model representing the payload for creating a new time entry
+    billable: Optional[bool] = False
+    created_with: str
+    description: Optional[str] = None
+    duration: int
+    event_metadata: Optional[dict] = None
+    pid: Optional[int] = None
+    project_id: Optional[int] = None
+    shared_with_user_ids: Optional[List[int]] = None
+    start: str
+    start_date: Optional[str] = None
+    stop: Optional[str] = None
+    tag_action: Optional[str] = None
+    tag_ids: Optional[List[int]] = None
+    tags: Optional[List[str]] = None
+    task_id: Optional[int] = None
+    tid: Optional[int] = None
+    uid: Optional[int] = None
+    user_id: Optional[int] = None
+    wid: Optional[int] = None
+    workspace_id: int
 
 class ProjectUserData(BaseModel):
     """Pydantic model representing the project user data."""
@@ -86,6 +129,7 @@ class ProjectData(BaseModel):
     at: str  # Last updated timestamp
 
 
+
 class TogglAPI:
     """Basic class to interact with Toggl API using API key and workspace ID."""
     
@@ -109,7 +153,7 @@ class TogglAPI:
         """Return the authentication headers."""
         return self.auth_header
 
-    def start_entry(self, description: str) -> dict:
+    def start_entry(self, description: str) -> TimeEntryData:
         """
         Start a new time entry in the workspace provided during initialization.
         The start time is set to the current datetime in ISO 8601 format.
@@ -119,23 +163,18 @@ class TogglAPI:
         """
         url = f"{self.base_url}/workspaces/{self.workspace_id}/time_entries"
         current_time = datetime.now(timezone.utc).isoformat()
-        
-        payload = {
-            "created_with": "toggl_service",
-            "description": description,
-            "tags": [],
-            "billable": False,
-            "workspace_id": int(self.workspace_id),
-            "duration": -1,  # For an ongoing time entry
-            "start": current_time,
-            "stop": None  # Ongoing, so no stop time
-        }
-
-        response = requests.post(url, json=payload, headers=self.auth_header)
+        payload = TimeEntryCreateData(
+            created_with="toggl_service",
+            description=description,
+            duration=-1, # For on going time entry
+            start=current_time,
+            workspace_id=int(self.workspace_id)
+        )
+        response = requests.post(url, json=payload.dict(), headers=self.auth_header)
         response.raise_for_status()  # Raises an exception for HTTP error codes
-        return response.json()
+        return TimeEntryData(**response.json())  # Return the started entry as a Pydantic model
 
-    def get_current_track(self) -> CurrentTrackData:
+    def get_current_track(self) -> TimeEntryData:
         """
         Get the currently running time entry for the authenticated user.
 
@@ -144,9 +183,27 @@ class TogglAPI:
         url = f"{self.base_url}/me/time_entries/current"
         response = requests.get(url, headers=self.auth_header)
         response.raise_for_status()  # Raises an exception for HTTP error codes
+        response_data = response.json()
+        # If the response is None, return None
+        if not response_data:
+            return None
+        # If there is a current time entry, return it as a Pydantic model
+        return TimeEntryData(**response_data)
+    
+    def stop_time_entry(self, time_entry_id: int) -> TimeEntryData:
+        # Stop a workspace time entry by its ID
+        url = f"{self.base_url}/workspaces/{self.workspace_id}/time_entries/{time_entry_id}/stop"
+        response = requests.patch(url, headers=self.auth_header)
+        response.raise_for_status()  # Raises an exception for HTTP error codes
+        return TimeEntryData(**response.json())  # Return the stopped entry as a Pydantic model
 
-        # Parse the response into a Pydantic model
-        return CurrentTrackData(**response.json())
+    def stop_running_entry(self) -> TimeEntryData:
+        # Stop the currently running time entry for the authenticated user
+        current_track = self.get_current_track()
+        # Raise an error if there is no running time entry
+        if current_track is None or current_track.duration >= 0:
+            raise ValueError("No running time entry found.")
+        return self.stop_time_entry(current_track.id)  # Stop the running time entry
     
     def get_user_projects(self) -> List[ProjectUserData]:
         """
