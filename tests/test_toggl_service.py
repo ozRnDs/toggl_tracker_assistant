@@ -2,7 +2,7 @@
 import pytest
 from datetime import datetime
 from unittest.mock import patch, ANY
-from toggl_tracker_assistant.toggl_service import TogglAPI, CurrentTrackData  # Adjust this import based on your module structure
+from toggl_tracker_assistant.toggl_service import TogglAPI, TimeEntryData  # Adjust this import based on your module structure
 
 from base64 import b64encode
 
