@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "Python: Run main.py",
+        "name": "Start Time Entry",
         "type": "python",
         "request": "launch",
         "program": "${workspaceFolder}/toggl_tracker_assistant/main.py",
@@ -11,7 +11,68 @@
         "env": {
           "PYTHONPATH": "${workspaceFolder}/toggl_tracker_assistant"
         },
+        "args": ["start"],
+      },
+      {
+        "name": "Stop Time Entry",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/toggl_tracker_assistant/main.py",
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}/toggl_tracker_assistant"
+        },
+        "args": ["stop"],
+      },
+      {
+        "name": "Config Time Entry Helper",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/toggl_tracker_assistant/main.py",
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}/toggl_tracker_assistant"
+        },
+        "args": ["config"],
+      },
+      {
+        "name": "Python: Explosion",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/toggl_tracker_assistant/explosion.py",
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}/toggl_tracker_assistant"
+        },
         "args": ["test"],
       },
+      {
+        "name": "Python: Boom",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/toggl_tracker_assistant/boom.py",
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}/toggl_tracker_assistant"
+        },
+        "args": ["test"],
+      },
+      {
+        "name": "Python: car",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/toggl_tracker_assistant/car_exploding.py",
+        "console": "integratedTerminal",
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}/toggl_tracker_assistant"
+        },
+        "args": ["test"],
+      }
     ]
   }
+  
