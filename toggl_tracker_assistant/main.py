@@ -1,3 +1,4 @@
+import time
 import tkinter as tk
 import sys
 from loguru import logger
@@ -77,7 +78,9 @@ if __name__ == "__main__":
     toggl_service = TogglAPI(api_key=app_config.TOGGL_API_KEY, workspace_id=app_config.TOGGL_WORKSPACE)
 
     # toggl_service.start_entry("Creating Quick Toggle APP")
-    logger.info(f"Started a new track: {toggl_service.get_current_track().id}")
+    logger.info(f"Started a new track: {toggl_service.start_entry("New start test").id}")
+    time.sleep(10)
+    logger.info(f"Stopped a new track: {toggl_service.stop_running_entry().id}")
 
     projects_list = toggl_service.get_projects()
     logger.info(f"Get Projects: {[item.name for item in projects_list]}")
