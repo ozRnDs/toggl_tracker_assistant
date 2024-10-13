@@ -21,8 +21,8 @@ def start():
         projects_list = [project for project in projects_list if project.name.lower() in app_config.PROJECTS_LIST]
     
     # # Create and run the UI
-    app = TogglStartUI(project_names=[project.name for project in projects_list])
-    user_input = app.run()
+    toggl_app = TogglStartUI(project_names=[project.name for project in projects_list])
+    user_input = toggl_app.run()
     project_id = [project.id for project in projects_list if project.name==user_input.project][0]
     track_id = toggl_service.start_entry(description=user_input.description, project_id=project_id)
     
@@ -35,14 +35,24 @@ def stop():
 @app.command()
 def config():
     # List of projects to populate the listbox
-    projects = ["Project A", "Project B", "Project C"]
+    try:
+        projects = [project.name for project in toggl_service.get_projects()]
+    except Exception as err:
+        projects=[]
 
     # Create and run the UI
-    app = TogglConfigUI(projects)
-    app_config = app.run()
-    print(f"Selected Projects: {app_config.PROJECTS_LIST}")
-    print(f"Workspace ID: {app_config.TOGGL_WORKSPACE}")
-    print(f"API Key: {app_config.TOGGL_API_KEY}")
+    setting_app = TogglConfigUI(projects, current_config=AppConfig())
+    new_app_config = setting_app.run()
+    
+    new_toggl_service = TogglAPI(api_key=new_app_config.TOGGL_API_KEY, workspace_id=new_app_config.TOGGL_WORKSPACE)
+    try:
+        projects = [project.name for project in new_toggl_service.get_projects()]
+    except Exception as err:
+        logger.error("Can't access toggl service, can't save the configuration details")
+        return
+
+    new_app_config.save_to_env()
+    logger.info("Updated env file")
 
 if __name__ == "__main__":
     app()
