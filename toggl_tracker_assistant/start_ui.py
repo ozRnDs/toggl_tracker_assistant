@@ -7,7 +7,7 @@ class UserInput(BaseModel):
     project: str
     description: str
 
-class TogglUI:
+class TogglStartUI:
     """Class to manage the UI of the application."""
     def __init__(self, project_names):
         self.root = tk.Tk()
