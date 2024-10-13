@@ -45,13 +45,13 @@ class TimeEntryCreateData(BaseModel):
     event_metadata: Optional[dict] = None
     pid: Optional[int] = None
     project_id: Optional[int] = None
-    shared_with_user_ids: Optional[List[int]] = None
+    shared_with_user_ids: Optional[List[int]] = []
     start: str
     start_date: Optional[str] = None
     stop: Optional[str] = None
     tag_action: Optional[str] = None
-    tag_ids: Optional[List[int]] = None
-    tags: Optional[List[str]] = None
+    tag_ids: Optional[List[int]] = []
+    tags: Optional[List[str]] = []
     task_id: Optional[int] = None
     tid: Optional[int] = None
     uid: Optional[int] = None
@@ -171,7 +171,7 @@ class TogglAPI:
             workspace_id=int(self.workspace_id),
             project_id=project_id,
         )
-        response = requests.post(url, json=payload.dict(), headers=self.auth_header)
+        response = requests.post(url, json=payload.model_dump(), headers=self.auth_header)
         response.raise_for_status()  # Raises an exception for HTTP error codes
         return TimeEntryData(**response.json())  # Return the started entry as a Pydantic model
 
