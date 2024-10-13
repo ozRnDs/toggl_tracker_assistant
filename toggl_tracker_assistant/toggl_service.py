@@ -153,7 +153,7 @@ class TogglAPI:
         """Return the authentication headers."""
         return self.auth_header
 
-    def start_entry(self, description: str) -> TimeEntryData:
+    def start_entry(self, description: str, project_id: int = None) -> TimeEntryData:
         """
         Start a new time entry in the workspace provided during initialization.
         The start time is set to the current datetime in ISO 8601 format.
@@ -168,7 +168,8 @@ class TogglAPI:
             description=description,
             duration=-1, # For on going time entry
             start=current_time,
-            workspace_id=int(self.workspace_id)
+            workspace_id=int(self.workspace_id),
+            project_id=project_id,
         )
         response = requests.post(url, json=payload.dict(), headers=self.auth_header)
         response.raise_for_status()  # Raises an exception for HTTP error codes
